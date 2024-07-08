@@ -1,0 +1,1 @@
+[06-Dec-2023 10:03:35 UTC] PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.1.0". You are running 8.0.30. in /home/mindpooltech/public_html/pitcrm.mindpooltech.com/vendor/composer/platform_check.php on line 24
