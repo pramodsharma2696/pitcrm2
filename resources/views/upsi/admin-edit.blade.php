@@ -131,18 +131,27 @@
                             <div class="sender-pan-details" id="panDetails_sender_name"></div>
                             <!-- Unique ID for sender PAN details -->
                         </div>
+                        
                         <div class="col-sm-6">
-                            <label for="myDateInput">Recipient Name</label>
-                            <select name="recipient_name" class="form-control recipient-select" required>
-                                <option value="" disabled selected>Recipient Name</option>
-                                @foreach($connectedData as $connectedPerson)
-                                <option value="{{ $connectedPerson->id }}" @if($connectedPerson->name == $data->recipient_name) selected @endif>
+                          <label for="myDateInput">Recipient Name</label>
+                            @php 
+                              
+                              $recipientNames = is_array(json_decode($data->recipient_name, true)) ? json_decode($data->recipient_name, true) : [$data->recipient_name];
+                            @endphp 
+                          <select name="recipient_name[]" class="form-control recipient-select" required multiple>
+                               @foreach($connectedData as $connectedPerson)
+                                <option value="{{ $connectedPerson->id }}"  @if(in_array($connectedPerson->name, $recipientNames)) selected @endif>
                                     {{ $connectedPerson->name }} (@if($connectedPerson->category_type == 'designated person') Insider @elseif($connectedPerson->category_type == 'connected person') Connected Person @elseif($connectedPerson->category_type == 'immediate relative') Immediate Relative @elseif($connectedPerson->category_type == 'financial relative') Financial Relative @endif)
                                 </option>
                                 @endforeach
-                            </select>
-                            <div class="recipient-pan-details" id="panDetails_recipient_name"></div>
+                          </select>
+                          <div class="recipient-pan-details" id="panDetails_recipient_name"></div>
                         </div>
+
+
+
+
+
                     </div>
 
 

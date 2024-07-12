@@ -153,11 +153,18 @@
                   <input type="text" class="form-control " id="exampleFirstName"
                      placeholder="Type of Entity" name="type_of_entity" value="{{$data->type_of_entity}}" disabled>
                </div>
-               <div class="col-sm-6 ">
+               <!-- <div class="col-sm-6 ">
                <label class="form-label  text-dark" >Entity Declaration:</label>
 
                   <input type="text" class="form-control" id="exampleLastName"
                      placeholder="Entity Declaration" name="entity_declaration"  value="{{$data->entity_declaration}}" disabled>
+               </div> -->
+               <div class="col-sm-6 pan_fields">
+               Entity Declaration Attachment: {{ basename($data->entity_declaration) }}
+                   <a href="{{ $entityAttachmentDownloadLink }}" download class="btn btn-primary ">Download Entity Declaration Attachment</a>
+                   @error('pan_attachment')
+                      <span style="color: red">{{ $message }}</span>
+                   @enderror
                </div>
             </div>
 

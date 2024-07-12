@@ -103,13 +103,13 @@
                    <div class="sender-pan-details" id="panDetails_sender_name"></div> <!-- Unique ID for sender PAN details -->
                  </div>
                  <div class="col-sm-6">
-                   <select name="recipient_name[]" class="form-control recipient-select" required>
+                   <select name="recipient_name[]" class="form-control recipient-select" required multiple>
                      <option value="" disabled selected required>Recipient Name</option>
                      @foreach($connedtedData as $data)
                        <option value="{{ $data->id }}">{{ $data->name }}  ({{ucfirst($data->category_type) }})</option>
                      @endforeach
                    </select>
-                   <div class="recipient-pan-details" id="panDetails_recipient_name"></div> <!-- Unique ID for recipient PAN details -->
+                  <div class="recipient-pan-details" id="panDetails_recipient_name"></div>
                  </div>
                </div>
                <div class="form-group row">

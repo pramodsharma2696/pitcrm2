@@ -225,7 +225,7 @@
                      <span style="color:red">{{$message}}</span>
                      @enderror
                </div>
-               <div class="col-sm-6 entity-fields">
+               <!-- <div class="col-sm-6 entity-fields">
                <label class="form-label  text-dark" >Entity Declaration:</label>
 
                   <input type="text" class="form-control" id="entity_declaration"
@@ -233,7 +233,16 @@
                      @error('entity_declaration')
                      <span style="color:red">{{$message}}</span>
                      @enderror
+               </div> -->
+               <div class="col-sm-6 pan_fields">
+                  <!-- <label class="form-label text-dark">PAN Attachment:</label> -->
+                  Entity Declaration Attachment: {{ basename($data->entity_declaration) }}
+                   <input type="file" class="form-control" name="entity_declaration" id="entity_declaration"  placeholder="Select entity declaration attachment"  value="{{$data->entity_declaration}}">
+                   @error('entity_declaration')
+                      <span style="color: red">{{ $message }}</span>
+                   @enderror
                </div>
+               
             </div>
 
             <div class="form-group row entity-fields">

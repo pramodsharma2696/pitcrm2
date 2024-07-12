@@ -51,7 +51,7 @@
                   @foreach($upsilist as $data)
                   <!-- <td>{{$data->upsi_id}}</td> -->
                   <td>{{$data->sender_name}}</td>
-                  <td>{{$data->recipient_name}}</td>
+                  <td>{{ is_array(json_decode($data->recipient_name, true)) ? implode(', ', json_decode($data->recipient_name, true)) : $data->recipient_name }}</td>
                   <td>
                   @if($data->status == 0)
                     {{ $data->created_at->format('Y-m-d') }}

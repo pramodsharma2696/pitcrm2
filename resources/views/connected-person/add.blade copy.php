@@ -208,15 +208,9 @@
                      <span style="color:red">{{$message}}</span>
                      @enderror
                </div>
-               <!-- <div class="col-sm-6 entity-fields">
+               <div class="col-sm-6 entity-fields">
                   <input type="text" class="form-control" id="entity_declaration"
                      placeholder="Entity Declaration" name="entity_declaration" value="{{old('entity_declaration')}}">
-                     @error('entity_declaration')
-                     <span style="color:red">{{$message}}</span>
-                     @enderror
-               </div> -->
-               <div class="col-sm-6">
-                     <input type="file" title="entity declaration"  class="form-control" name="entity_declaration" id="entity_declaration" placeholder="Select entity declaration">
                      @error('entity_declaration')
                      <span style="color:red">{{$message}}</span>
                      @enderror

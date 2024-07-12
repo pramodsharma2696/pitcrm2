@@ -106,6 +106,7 @@ class AdminController extends Controller
             ]
         );
         if ($validator->fails()) {
+            dd(1);
             return redirect()
                 ->back()
                 ->withErrors($validator)
@@ -344,8 +345,10 @@ class AdminController extends Controller
     {
         $data = ConnectedPerson::findOrFail($id);
         $panAttachmentPath = $data->pan_attachment;
+        $entityAttachmentPath = $data->entity_declaration;
         // Generate the full URL for the download link
         $panAttachmentDownloadLink = asset("storage/" . $panAttachmentPath);
+        $entityAttachmentDownloadLink = asset("storage/" . $entityAttachmentPath);
         //Declaration Attachment Download Path
         $declarationAttachmentPath = $data->declaration_attachment;
         $declarationAttachmentDownloadLink = asset(
@@ -357,6 +360,7 @@ class AdminController extends Controller
             compact(
                 "data",
                 "panAttachmentDownloadLink",
+                "entityAttachmentDownloadLink",
                 "declarationAttachmentDownloadLink",
             ),
         );
@@ -871,6 +875,7 @@ class AdminController extends Controller
     }
     public function AdminUpsiEdit($upsiId)
     {
+       
         $upsi = $this->responseHelper->getData('upsi_sharings', ['upsi_id' => $upsiId]);
         $datas = UpsiSharing::where('upsi_id', $upsiId)->orderBy('created_at', 'desc')->paginate(100);
         $connectedData = ConnectedPerson::latest()->get();
@@ -879,14 +884,59 @@ class AdminController extends Controller
     
         return view('upsi.admin-edit', compact('datas', 'upsiId', 'upsi', 'connectedData', 'relatives', 'financialRelatives'));
     }
-    public function AdminUpsiupdate(Request $request, $id)
+//     public function AdminUpsiupdate(Request $request, $id)
+// {
+//     $upsiUpdate = UpsiSharing::findOrFail($id);
+
+//     // Validate the request data
+//     $validatedData = $request->validate([
+//         'upsi_sender_name' => 'required',
+//         'recipient_name' => 'required',
+//         'sharing_purpose' => 'required',
+//         'sharing_date' => 'required|date',
+//         'notice_shared' => 'required',
+//     ]);
+
+//     // Update the model with the validated data
+//     if (isset($request['upsi_sender_name']) && !empty($request['upsi_sender_name'])) {
+//         $upsi_sender_name = $this->responseHelper->getData('connected_people', ['id' => $request['upsi_sender_name']]);
+//         $upsiUpdate->sender_name = $upsi_sender_name->name;
+//         $upsiUpdate->sender_id = $request['upsi_sender_name'];
+//     }
+//     if (isset($request['recipient_name']) && !empty($request['recipient_name'])) {
+//         $recipient_name = $this->responseHelper->getData('connected_people', ['id' => $request['recipient_name']]);
+//         $upsiUpdate->recipient_name = $recipient_name->name;
+//         $upsiUpdate->recipient_id = $request['recipient_name'];
+//     }
+//     $upsiUpdate->purpose_of_sharing = $validatedData['sharing_purpose'];
+//     $upsiUpdate->sharing_date = $validatedData['sharing_date'];
+//     $upsiUpdate->notice_of_confidentiality_shared = $validatedData['notice_shared'];
+   
+ 
+
+//     // Handle file upload
+//     if ($request->hasFile('files')) {
+//         $file = $request->file('files');
+//         $userFileName = $file->getClientOriginalName();
+//         $fileName = $file->store('upsi-attachments');
+//         $upsiUpdate->file_path = $fileName;
+//         $upsiUpdate->file_name = $userFileName;
+//     }
+
+//     // Save the changes
+//     $upsiUpdate->save();
+
+//     // Redirect with success message
+//     return redirect()->back()->with('success', 'UPSI record updated successfully');
+// }
+public function AdminUpsiupdate(Request $request, $id)
 {
     $upsiUpdate = UpsiSharing::findOrFail($id);
 
     // Validate the request data
     $validatedData = $request->validate([
         'upsi_sender_name' => 'required',
-        'recipient_name' => 'required',
+        'recipient_name' => 'required|array', // Ensure recipient_name is an array
         'sharing_purpose' => 'required',
         'sharing_date' => 'required|date',
         'notice_shared' => 'required',
@@ -898,17 +948,24 @@ class AdminController extends Controller
         $upsiUpdate->sender_name = $upsi_sender_name->name;
         $upsiUpdate->sender_id = $request['upsi_sender_name'];
     }
+    
     if (isset($request['recipient_name']) && !empty($request['recipient_name'])) {
-        $recipient_name = $this->responseHelper->getData('connected_people', ['id' => $request['recipient_name']]);
-        $upsiUpdate->recipient_name = $recipient_name->name;
-        $upsiUpdate->recipient_id = $request['recipient_name'];
+        $recipient_ids = $request['recipient_name'];
+        $recipient_names = [];
+        
+        foreach ($recipient_ids as $recipient_id) {
+            $recipient_data = $this->responseHelper->getData('connected_people', ['id' => $recipient_id]);
+            $recipient_names[] = $recipient_data->name;
+        }
+        
+        $upsiUpdate->recipient_name = json_encode($recipient_names);
+        $upsiUpdate->recipient_id = json_encode($recipient_ids);
     }
+
     $upsiUpdate->purpose_of_sharing = $validatedData['sharing_purpose'];
     $upsiUpdate->sharing_date = $validatedData['sharing_date'];
     $upsiUpdate->notice_of_confidentiality_shared = $validatedData['notice_shared'];
-   
- 
-
+    
     // Handle file upload
     if ($request->hasFile('files')) {
         $file = $request->file('files');
@@ -924,6 +981,7 @@ class AdminController extends Controller
     // Redirect with success message
     return redirect()->back()->with('success', 'UPSI record updated successfully');
 }
+
 
 
 public function updateFieldValues(Request $request)
@@ -961,18 +1019,51 @@ public function updateFieldValues(Request $request)
     return redirect()->back()->with('success', 'Field values updated successfully.');
 }
 
-    public function getPanDetails(Request $request)
-    {
-        $id = $request->input('id');
+    // public function getPanDetails(Request $request)
+    // {   
+    //     dd($request->all());
+    //     $id = $request->input('id');
 
-        $connectedPerson = ConnectedPerson::withTrashed()->find($id);
+    //     $connectedPerson = ConnectedPerson::withTrashed()->find($id);
+
+    //     if ($connectedPerson) {
+    //         $panDetails = $connectedPerson->pan;
+    //         return response()->json(['pan' => $panDetails]);
+    //     }
+
+    //     return response()->json(['error' => 'Connected person not found.']);
+    // }
+    public function getPanDetails(Request $request)
+{
+    $ids = $request->input('id');
+
+    // Check if $ids is an array (multiple IDs) or a single value
+    if (is_array($ids)) {
+        $panDetails = [];
+
+        foreach ($ids as $id) {
+            $connectedPerson = ConnectedPerson::withTrashed()->find($id);
+
+            if ($connectedPerson) {
+                $panDetails[$id] = $connectedPerson->pan;
+            } else {
+                $panDetails[$id] = 'Not found'; // Handle case where connected person is not found
+            }
+        }
+
+        return response()->json(['pan' => $panDetails]);
+    } else {
+        // Single ID case
+        $connectedPerson = ConnectedPerson::withTrashed()->find($ids);
 
         if ($connectedPerson) {
             $panDetails = $connectedPerson->pan;
             return response()->json(['pan' => $panDetails]);
+        } else {
+            return response()->json(['error' => 'Connected person not found.']);
         }
-
-        return response()->json(['error' => 'Connected person not found.']);
     }
+}
+
 
 }

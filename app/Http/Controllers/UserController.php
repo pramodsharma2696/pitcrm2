@@ -51,86 +51,86 @@ class UserController extends Controller
     // public function Store(Request $request){
     //     return $this->userRepository->store($request->all());
     // }
-    public function Store(Request $request){
-        // dd($request->input('upsid_to_store'));
-
-        $validator = validator::make(
-            $request->all(),
-            config("rules.storeUPSI"),
-        );
-        if ($validator->fails()) {
-            return redirect()
-                ->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-        // $upsi_id = isset($request['upsid_to_store']) && !empty($request['upsid_to_store'])
-        // ? $request['upsid_to_store']
-        // : $this->responseHelper->generateCode();
-        $upsi_id = $request->filled('upsid_to_store') ? $request->input('upsid_to_store') : $this->responseHelper->generateCode();
-        $files = $request->file('files');
-        //  $processedEventNames = [];
-        for ($i = 0; $i < count($request->input('sharing_purpose')); $i++) {
-            $upsicreate = new UpsiSharing;
+   
+    public function Store(Request $request)
+{
     
-            $upsicreate->upsi_id = $upsi_id;
-            if(isset($request['event_name']) && !empty($request['event_name'])){
-                $upsicreate->event_name = $request['event_name'];
+    $validator = Validator::make($request->all(), config("rules.storeUPSI"));
+
+    if ($validator->fails()) {
+        return redirect()
+            ->back()
+            ->withErrors($validator)
+            ->withInput();
+    }
+
+    $upsi_id = $request->filled('upsid_to_store') ? $request->input('upsid_to_store') : $this->responseHelper->generateCode();
+    $files = $request->file('files');
+
+    for ($i = 0; $i < count($request->input('sharing_purpose')); $i++) {
+        $upsicreate = new UpsiSharing;
+
+        $upsicreate->upsi_id = $upsi_id;
+        $upsicreate->event_name = $request->input('event_name');
+        $upsicreate->event_date = $request->input('event_date');
+        $upsicreate->publishing_date = $request->input('publishing_date');
+        $upsicreate->trading_window = $request->input('trading_window');
+        $upsicreate->closure_start_date = $request->input('closure_start_date');
+        $upsicreate->closure_end_date = $request->input('closure_end_date');
+        $upsicreate->purpose_of_sharing = $request->input('sharing_purpose')[$i];
+
+        $sender_name = $this->responseHelper->getData('connected_people', ['id' => $request->input('upsi_sender_name')[$i]]);
+        $upsicreate->sender_name = $sender_name->name;
+        $upsicreate->sender_id = $request->input('upsi_sender_name')[$i];
+
+        // Ensure recipient_name is an array
+        $recipient_ids = $request->input('recipient_name');
+        if (!is_array($recipient_ids)) {
+            $recipient_ids = [$recipient_ids];
+        }
+
+        $recipient_names = [];
+        foreach ($recipient_ids as $recipient_id) {
+            $recipient_data = $this->responseHelper->getData('connected_people', ['id' => $recipient_id]);
+            if ($recipient_data) {
+                $recipient_names[] = $recipient_data->name;
             }
+        }
 
-        //  // Check if the event_name should be set or not
-        //      if (isset($request['event_name']) && !empty($request['event_name']) && !in_array($request['event_name'], $processedEventNames)) {
-        //          $upsicreate->event_name = $request['event_name'];
-        //          // Add the event_name to the processedEventNames array
-        //          $processedEventNames[] = $request['event_name'];
-        //      }
-            $upsicreate->event_date = $request->input('event_date');
-            $upsicreate->publishing_date = $request->input('publishing_date');
-            $upsicreate->trading_window = $request->input('trading_window');
-            $upsicreate->closure_start_date = $request->input('closure_start_date');
-            $upsicreate->closure_end_date = $request->input('closure_end_date');
-    
-            $upsicreate->purpose_of_sharing = $request->input('sharing_purpose')[$i];
-    
-            $sender_name = $this->responseHelper->getData('connected_people', ['id' => $request->input('upsi_sender_name')[$i]]);
-            $upsicreate->sender_name = $sender_name->name;
-            $upsicreate->sender_id = $request->input('upsi_sender_name')[$i];
-    
-            $recipient_data = $this->responseHelper->getData('connected_people', ['id' => $request->input('recipient_name')[$i]]);
-            $upsicreate->recipient_name = $recipient_data->name;
-            $upsicreate->recipient_id = $recipient_data->id;
+        // Store recipient names and ids as JSON arrays
+        $upsicreate->recipient_name = json_encode($recipient_names);
+        $upsicreate->recipient_id = json_encode($recipient_ids);
 
-           $upsicreate->sharing_date = $request->input('sharing_date')[$i];
-            $upsicreate->remarks = $request->input('remarks')[$i];
-            // $upsicreate->notice_of_confidentiality_shared = $request->input('notice_shared')[$i];
-            $noticeShared = $request->filled('notice_shared') ? $request->input('notice_shared')[$i] : 0;
-            $upsicreate->notice_of_confidentiality_shared = $noticeShared !== null ? $noticeShared : 0;
-            if ($request->hasFile('files') && count($request->file('files')) > 0) {
-                $files = $request->file('files');
-            
-                if (isset($files[$i]) && $files[$i]->isValid()) {
-                    $file = $files[$i];
-                    $userfilename = $file->getClientOriginalName();
-                    $filename = $file->store('upsi-attachments');
-                    $upsicreate->file_path = $filename;
-                    $upsicreate->file_name = $userfilename; 
-                }
-            }
-    
-            $upsicreate->created_by = Auth::user()->id;
-            $upsicreate->updated_by = Auth::user()->id;
-    
-            $upsicreate->save();
+        $upsicreate->sharing_date = $request->input('sharing_date')[$i];
+        $upsicreate->remarks = $request->input('remarks')[$i];
+        $upsicreate->notice_of_confidentiality_shared = $request->filled('notice_shared') ? $request->input('notice_shared')[$i] : 0;
+
+        // Handle file upload if applicable
+        if ($request->hasFile('files') && isset($request->file('files')[$i]) && $request->file('files')[$i]->isValid()) {
+            $file = $request->file('files')[$i];
+            $userfilename = $file->getClientOriginalName();
+            $filename = $file->store('upsi-attachments');
+            $upsicreate->file_path = $filename;
+            $upsicreate->file_name = $userfilename;
         }
+
+        $upsicreate->created_by = Auth::user()->id;
+        $upsicreate->updated_by = Auth::user()->id;
+
+        $upsicreate->save();
+    }
+
+    if ($request->filled('upsid_to_store')) {
+        return redirect()->route("upsi.open-upsi-list", $request->input('upsid_to_store'));
+    } elseif (Auth::user()->role == 'admin') {
+        return redirect()->route("upsi.list");
+    } else {
+        return redirect()->route("dashboard");
+    }
+}
+
     
-        if ($request->filled('upsid_to_store')) {
-            return redirect()->route("upsi.open-upsi-list", $request->input('upsid_to_store'));
-        } elseif (Auth::user()->role == 'admin') {
-            return redirect()->route("upsi.list");
-        } else {
-            return redirect()->route("dashboard");
-        }
-        }
+
      
 
         public function download($id)

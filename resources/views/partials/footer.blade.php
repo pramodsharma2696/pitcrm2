@@ -382,6 +382,7 @@ $(document).ready(function() {
     }
   });
 
+/*
   // Add event listener to the recipient select element
   $(document).on('change', '.recipient-select', function() {
     var selectedId = $(this).val();
@@ -410,6 +411,46 @@ $(document).ready(function() {
       panDetailsElement.empty();
     }
   });
+*/
+$(document).on('change', '.recipient-select', function() {
+        var selectedIds = $(this).val();
+
+        if (selectedIds) {
+            $.ajax({
+                url: '{{ route('getPanDetails') }}',
+                type: 'POST',
+                data: { id: selectedIds },
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    var panDetails = response.pan;
+
+                    // Loop through each recipient select element
+                    $('.recipient-select').each(function() {
+                        var recipientId = $(this).val();
+                        var panDetailsElement = $(this).closest('.form-group').find('.recipient-pan-details');
+
+                        if (panDetails[recipientId]) {
+                            var panDetailText = 'PAN: ' + panDetails[recipientId];
+                            panDetailsElement.text(panDetailText);
+                        } else {
+                            panDetailsElement.empty(); // Clear PAN details if not found
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    // Handle error if needed
+                }
+            });
+        } else {
+            // Clear all recipient PAN details if no option is selected
+            $('.recipient-pan-details').empty();
+        }
+    });
+
+
 
   // Handle click event on "Add More" button
   $('#add-row-btn').click(function(e) {

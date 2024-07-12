@@ -48,32 +48,23 @@ class AdminRepository
             $declarationAttachmentPath = $declarationAttachment->storeAs("declarationAttachment",$declarationAttachmentName,"public",); // Store the file with the original name
             $connectedPerson->declaration_attachment = $declarationAttachmentPath;
         }
-       
+
         switch ($request->input("type")) {
             case "individual":
-                $connectedPerson->permanent_address = $request->input("permanent_address");
-                $connectedPerson->correspondence_address = $request->input("correspondence_address");
+                $connectedPerson->permanent_address = $request->input("permanent_address",);
+                $connectedPerson->correspondence_address = $request->input("correspondence_address",);
                 $connectedPerson->designation = $request->input("designation");
                 break;
             case "entity":
                 $connectedPerson->entity_permanent_address = $request->input("entity_permanent_address",);
                 $connectedPerson->no_of_entity = $request->input("no_of_entity",);
                 $connectedPerson->type_of_entity = $request->input("type_of_entity",);
-                $connectedPerson->entity_correspondence_address = $request->input("entity_correspondence_address");
-                // Handle entity_declaration file upload
-                if ($request->hasFile("entity_declaration")) {
-                    $entitydeclarationAttachment = $request->file("entity_declaration");
-                    $entitydeclarationAttachmentName = $entitydeclarationAttachment->getClientOriginalName();
-                    $entitydeclarationAttachmentPath = $entitydeclarationAttachment->storeAs("entitydeclarationAttachment", $entitydeclarationAttachmentName, "public");
-                    $connectedPerson->entity_declaration = $entitydeclarationAttachmentPath;
-                }else{
-                    $connectedPerson->entity_declaration = $request->input("entity_declaration");
-                }
-                
-                $connectedPerson->entity_registration_number = $request->input("entity_registration_number");
-                $connectedPerson->authorized_personnel_name = $request->input("authorized_personnel_name");
-                $connectedPerson->authorized_personnel_email = $request->input("authorized_personnel_email");
-                $connectedPerson->authorized_personnel_mobile_number = $request->input("authorized_personnel_mobile_number");
+                $connectedPerson->entity_correspondence_address = $request->input("entity_correspondence_address",);
+                $connectedPerson->entity_declaration = $request->input("entity_declaration",);
+                $connectedPerson->entity_registration_number = $request->input("entity_registration_number",);
+                $connectedPerson->authorized_personnel_name = $request->input("authorized_personnel_name",);
+                $connectedPerson->authorized_personnel_email = $request->input("authorized_personnel_email",);
+                $connectedPerson->authorized_personnel_mobile_number = $request->input("authorized_personnel_mobile_number",);
                 break;
         }
 
@@ -120,30 +111,20 @@ class AdminRepository
 
         switch ($request->input("type")) {
             case "individual":
-                $connectedPerson->permanent_address = $request->input("permanent_address");
-                $connectedPerson->correspondence_address = $request->input("correspondence_address");
+                $connectedPerson->permanent_address = $request->input("permanent_address",);
+                $connectedPerson->correspondence_address = $request->input("correspondence_address",);
                 $connectedPerson->designation = $request->input("designation");
                 break;
             case "entity":
-                $connectedPerson->entity_permanent_address = $request->input("entity_permanent_address");
+                $connectedPerson->entity_permanent_address = $request->input("entity_permanent_address",);
                 $connectedPerson->no_of_entity = $request->input("no_of_entity",);
                 $connectedPerson->type_of_entity = $request->input("type_of_entity",);
                 $connectedPerson->entity_correspondence_address = $request->input("entity_correspondence_address",);
-                // $connectedPerson->entity_declaration = $request->input("entity_declaration");
-                 // Handle entity_declaration file upload
-                if ($request->hasFile("entity_declaration")) {
-                    $entitydeclarationAttachment = $request->file("entity_declaration");
-                    $entitydeclarationAttachmentName = $entitydeclarationAttachment->getClientOriginalName();
-                    $entitydeclarationAttachmentPath = $entitydeclarationAttachment->storeAs("entitydeclarationAttachment", $entitydeclarationAttachmentName, "public");
-                    $connectedPerson->entity_declaration = $entitydeclarationAttachmentPath;
-                }else{
-                    $connectedPerson->entity_declaration = $request->input("entity_declaration");
-                }
-
-                $connectedPerson->entity_registration_number = $request->input("entity_registration_number");
-                $connectedPerson->authorized_personnel_name = $request->input("authorized_personnel_name");
-                $connectedPerson->authorized_personnel_email = $request->input("authorized_personnel_email");
-                $connectedPerson->authorized_personnel_mobile_number = $request->input("authorized_personnel_mobile_number");
+                $connectedPerson->entity_declaration = $request->input("entity_declaration",);
+                $connectedPerson->entity_registration_number = $request->input("entity_registration_number",);
+                $connectedPerson->authorized_personnel_name = $request->input("authorized_personnel_name",);
+                $connectedPerson->authorized_personnel_email = $request->input("authorized_personnel_email",);
+                $connectedPerson->authorized_personnel_mobile_number = $request->input("authorized_personnel_mobile_number",);
                 break;
         }
 

@@ -36,9 +36,12 @@
                   </div>
                   <div class="col-sm-6">
                   <label for="myDateInput">Recipient Name</label>
-                  <select name="recipient_name" class="form-control recipient-select" disabled>
+                  @php 
+                  $recipientNames = is_array(json_decode($upsilist->recipient_name, true)) ? json_decode($upsilist->recipient_name, true) : [$upsilist->recipient_name];
+                  @endphp 
+                  <select name="recipient_name" class="form-control recipient-select" disabled multiple>
                      @foreach($connedtedData as $data)
-                     <option value="{{ $data->id }}"  @if($data->name == $upsilist->recipient_name) selected @endif>{{ $data->name }} (@if($data->category_type == 'designated person') Insider @elseif($data->category_type == 'connected person') Connected Person @elseif($data->category_type == 'immediate relative') Immediate Relative @elseif($data->category_type == 'financial relative') Financial Relative @endif)</option>
+                     <option value="{{ $data->id }}"  @if(in_array($data->name, $recipientNames)) selected @endif>{{ $data->name }} (@if($data->category_type == 'designated person') Insider @elseif($data->category_type == 'connected person') Connected Person @elseif($data->category_type == 'immediate relative') Immediate Relative @elseif($data->category_type == 'financial relative') Financial Relative @endif)</option>
                      @endforeach
                   </select>
                   <div class="recipient-pan-details" id="panDetails_recipient_name"></div>
