@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('upsi_id');
             $table->enum('status', [1, 0])->default(0);
             $table->string('sender_name');
-            $table->string('recipient_name');
+            $table->json('recipient_name');
             $table->unsignedBigInteger('sender_id');
-            $table->unsignedBigInteger('recipient_id');
+            $table->json('recipient_id');
             $table->string('purpose_of_sharing');
             $table->date('sharing_date');
             $table->string('event_name')->nullable();

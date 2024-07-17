@@ -873,6 +873,19 @@ class AdminController extends Controller
         session()->flash("success", "UPSI Successfully Approved.");
         return redirect()->back();
     }
+    public function UpsiApproveAll($upsId)
+    {
+        $upsilist = UpsiSharing::where("upsi_id", $upsId)->get();
+        $user = auth()->user();
+        foreach ($upsilist as $value) {
+            $value->status = 1;
+            $value->save();
+            $value->approved_date = date('Y-m-d'); 
+            $value->approved_by = $user->firstname . ' ' . $user->lastname;
+        }
+        session()->flash("success", "UPSI Successfully Approved All.");
+        return redirect()->back();
+    }
     public function AdminUpsiEdit($upsiId)
     {
        

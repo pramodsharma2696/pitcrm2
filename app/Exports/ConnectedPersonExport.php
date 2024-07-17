@@ -11,9 +11,21 @@ class ConnectedPersonExport implements FromCollection
     /**
     * @return \Illuminate\Support\Collection
     */
+    protected $startDate;
+    protected $endDate;
+
+    public function __construct($startDate, $endDate)
+    {
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
+    }
     public function collection()
     {
+        $formattedStartDate = date('Y-m-d H:i:s', strtotime($this->startDate));
+        $formattedEndDate = date('Y-m-d H:i:s', strtotime($this->endDate . ' 23:59:59'));
+        
         $data = ConnectedPerson::where('category_type', 'connected person')
+        ->whereBetween('created_at', [$formattedStartDate, $formattedEndDate])
         ->orderBy('name', 'asc')
         ->get([
             'iuid',

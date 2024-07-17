@@ -57,6 +57,7 @@ Route::middleware(['auth', 'verified','otp.verified'])->group(function () {
 
     Route::get('/admin/upsi/list/', [AdminController::class, 'UpsiList'])->name('upsi.list');
     Route::get('/admin/upsi/approve/{id}', [AdminController::class, 'UpsiApprove'])->name('upsi.approve');
+    Route::get('/admin/upsi/approveall/{id}', [AdminController::class, 'UpsiApproveAll'])->name('upsi.approveall');
     
     //Admin UPSI Edit
     Route::get('/admin/upsi/edit/list/{id}', [AdminController::class, 'AdminUpsiEdit'])->name('admin.upsi.edit.list');

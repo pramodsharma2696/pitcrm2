@@ -7,45 +7,60 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 
 class UPSIExport implements FromCollection
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
+    protected $startDate;
+    protected $endDate;
+
+    public function __construct($startDate, $endDate)
+    {
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
+    }
+
     public function collection()
     {
-        $data =UpsiSharing::with(['sender', 'recipient','createdByUser'])->get([
-            'upsi_id',
-            'event_name',
-            'event_date',
-            'publishing_date',
-            'sender_name',
-            'recipient_name',
-            'purpose_of_sharing',
-            'status',
-            'sharing_date',
-            'event_date',
-            'trading_window',
-            'closure_start_date',
-            'closure_end_date',
-            'remarks',
-            'notice_of_confidentiality_shared',
-            'updated_at',
-        ]);
+        // Format the dates to include time and ensure proper comparison
+        $formattedStartDate = date('Y-m-d H:i:s', strtotime($this->startDate));
+        $formattedEndDate = date('Y-m-d H:i:s', strtotime($this->endDate . ' 23:59:59'));
+
+        $data = UpsiSharing::with(['sender', 'recipient', 'createdByUser'])
+            ->whereBetween('created_at', [$formattedStartDate, $formattedEndDate])
+            ->get([
+                'upsi_id',
+                'event_name',
+                'event_date',
+                'publishing_date',
+                'sender_name',
+                'recipient_name',
+                'purpose_of_sharing',
+                'status',
+                'sharing_date',
+                'trading_window',
+                'closure_start_date',
+                'closure_end_date',
+                'remarks',
+                'notice_of_confidentiality_shared',
+                'updated_at',
+            ]);
+
         $formattedData = collect([$this->headings()]);
+
         foreach ($data as $row) {
-            // Convert the 'status' value to "Approved" or "Not Approved"
             $status = $row->status == 1 ? 'Approved' : 'Not Approved';
             $notice_shared = $row->notice_of_confidentiality_shared == 1 ? 'Yes' : 'No';
-    
-            // Add the formatted row to the formatted data
+
+            // Decode the JSON recipient_name and join into a string
+            $recipientNames = json_decode($row->recipient_name, true);
+            $recipientNamesString = is_array($recipientNames) ? implode(', ', $recipientNames) : $row->recipient_name;
+
             $formattedData[] = [
                 $row->upsi_id,
                 $row->event_name,
                 $row->event_date,
                 $row->publishing_date,
                 $row->sender_name,
-                $row->recipient_name,
+                $recipientNamesString,
                 $row->purpose_of_sharing,
-                $status, // Add the formatted 'status' value
+                $status,
                 $row->sharing_date,
                 $row->trading_window,
                 $row->closure_start_date,
@@ -57,8 +72,7 @@ class UPSIExport implements FromCollection
         }
 
         return $formattedData;
-    }  
-    
+    }
 
     public function headings(): array
     {
@@ -77,26 +91,7 @@ class UPSIExport implements FromCollection
             'Closure End Date',
             'Remarks',
             'Notice of Confidentiality Shared',
-            'Audit Trail'
+            'Audit Trail',
         ];
     }
-
-
-
-    
-    
-    // protected $upsilist;
-
-    // public function __construct($upsilist)
-    // {
-    //     $this->upsilist = $upsilist;
-    // }
-
-    // public function collection()
-    // {
-    //     return $this->upsilist;
-    // }
-
-
-
 }

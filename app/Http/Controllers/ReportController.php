@@ -17,17 +17,23 @@ class ReportController extends Controller
     {
         return view('reports.index');
     }
-    public function downloadConnectedPersonReport()
+    public function downloadConnectedPersonReport(Request $request)
     {
-        return Excel::download(new ConnectedPersonExport, 'Connected Person Report.xlsx');
+        $startDate = $request->start_date;
+        $endDate = $request->end_date;
+        return Excel::download(new ConnectedPersonExport($startDate, $endDate), 'Connected Person Report.xlsx');
     }
-    public function downloadInsiderReport()
+    public function downloadInsiderReport(Request $request)
     {
-        return Excel::download(new InsiderExport, 'Insider Report.xlsx');
+        $startDate = $request->start_date;
+        $endDate = $request->end_date;
+        return Excel::download(new InsiderExport($startDate, $endDate), 'Insider Report.xlsx');
     }
-    public function downloadUPSIReport()
+    public function downloadUPSIReport(Request $request)
     {
-        return Excel::download(new UPSIExport, 'UPSI Report.xlsx');
+        $startDate = $request->start_date;
+        $endDate = $request->end_date;
+        return Excel::download(new UPSIExport($startDate, $endDate), 'UPSI Report.xlsx');
     }
     public function generateConnectedPersonPdf()
     {

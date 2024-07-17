@@ -44,13 +44,10 @@
                </thead>
                <tbody>
                   @foreach($upsilist as $data)
-                  @php
-                  $upsilistCount = \App\Models\UpsiSharing::where('upsi_id', $data->upsi_id)->count();
-                  $hasPendingApproval = \App\Models\UpsiSharing::where('upsi_id', $data->upsi_id)->where('status', '0')->exists();
-                  @endphp
+     
         
                   <td> {{ $upsilist->firstItem()+$loop->index }} </td>
-                  <td><a href="{{ route('upsi.open-upsi-list',$data->upsi_id)}}">{{$data->upsi_id}}</a></td>      
+                  <td><a href="{{ route('upsi.open-upsi-list',$data->upsi_id)}}">{{$data->upsi_id}} </a></td>      
                   <td>{{$data->event_name}}</td>
                   <td>{{$data->event_date}}</td>        
                   <td>{{$data->publishing_date}}</td>
@@ -66,14 +63,10 @@
 
                   <a href="{{ route('admin.upsi.read',$data->id)}}" class="btn btn-warning btn-sm">View</a>
                    <a href="{{ route('admin.upsi.edit.list',$data->upsi_id)}}" class="btn btn-primary btn-sm">Edit</a>
-                  
                    @if($data->status == 0)
                     <a href="{{ route('upsi.approve',$data->id)}}" class="btn btn-info btn-sm">Approve</a>
                    @else
                     <a href="#" class="btn btn-success btn-sm disabled" tabindex="-1" aria-disabled="true">Approved</a>
-                   @endif
-                   @if($upsilistCount > 1 && $hasPendingApproval)
-                     <a href="{{ route('upsi.approveall', $data->upsi_id) }}" class="btn btn-secondary btn-sm">Approve All</a>
                    @endif
                    @if($data->status == 0)
                    <a href="{{ route('admin.upsi.delete',$data->id)}}" class="btn btn-danger btn-sm">Delete</a>
